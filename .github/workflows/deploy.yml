@@ -1,0 +1,51 @@
+name: Deploy application
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - template.yml
+      - package.json
+      - yarn.lock
+      - src/**
+
+concurrency:
+  group: ${{ github.workflow }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check-project-std:
+    uses: ./.github/workflows/check-project-std.yml
+
+  deploy-application:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: arn:aws:iam::578003269847:role/PRX-GHA-AccessRole
+          role-session-name: gha-deploy-cloudwatch-toolkit
+
+      - name: Deploy CloudFormation stack
+        run: |
+          rm samconfig.toml
+          sam build && sam deploy \
+            --region us-east-2 \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --stack-name cloudwatch-toolkit \
+            --resolve-s3 \
+            --no-progressbar \
+            --s3-prefix cloudwatch-toolkit \
+            --capabilities CAPABILITY_IAM \
+            --role-arn arn:aws:iam::578003269847:role/PRX-GHA-ServiceRoleForCloudFormation

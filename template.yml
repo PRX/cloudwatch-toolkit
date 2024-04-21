@@ -1,0 +1,303 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Description: A collection of utilities that integrate with CloudWatch
+
+Parameters:
+  CloudWatchCrossAccountSharingRoleName: { Type: String, Default: CloudWatch-CrossAccountSharingRole }
+  AlarmReminderSearchAccountIds: { Type: CommaDelimitedList }
+  AlarmReminderSearchRegions: { Type: CommaDelimitedList }
+  FatalSmsContactListSnsTopicArn: { Type: String }
+
+Resources:
+  # This is an _organization sink_ custom EventBridge event bus. It's intended
+  # to exist once within an AWS Organization (i.e., in a single region in a
+  # single account).
+  #
+  # Relevant CloudWatch activity within the organization is expected to be sent
+  # to this event bus. Generally this is done by creating rules on all default
+  # event buses within the organization, which forward CloudWatch events from
+  # all accounts and regions to this bus.
+  #
+  # Any tooling that responds to CloudWatch events can subscribe to
+  # the relevant events on this bus.
+  #
+  # This bus should always be called `CloudWatch-org-sink`, as that is what
+  # the rules on all default buses expect.
+  OrgSinkEventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: CloudWatch-org-sink
+  OrgSinkEventBusPolicy:
+    # TODO Should have a Condition to limit this to events sent by events.amazonaws.com
+    # since it's only intended to get events from other event buses, not from
+    # any arbitrary sender
+    Type: AWS::Events::EventBusPolicy
+    Properties:
+      EventBusName: !Ref OrgSinkEventBus
+      StatementId: AllowEventsToCloudWatchOrgSink
+      Statement:
+        Action: events:PutEvents
+        Condition:
+          StringEquals:
+            aws:ResourceOrgID: ${aws:PrincipalOrgID}
+        Effect: Allow
+        Principal: "*"
+        Resource: !GetAtt OrgSinkEventBus.Arn
+
+  # Sends notifications to Slack for nearly all CloudWatch alarm activity
+  # from all accounts and all regions across the AWS organization by watching
+  # the custom event bus
+  AlarmSlackNotificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/alarm-slack-notifications
+      Description: >-
+        Sends messages to Slack in response to CloudWatch Alarms state changes
+        from across the organization. All accounts and all regions forward
+        CloudWatch Alarms state change events to the custom event bus that
+        has rules to trigger this function.
+      Environment:
+        Variables:
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          CROSS_ACCOUNT_CLOUDWATCH_ALARM_IAM_ROLE_NAME: !Ref CloudWatchCrossAccountSharingRoleName
+      Events:
+        Alarms:
+          Properties:
+            EventBusName: !Ref OrgSinkEventBus
+            Pattern:
+              detail-type:
+                - CloudWatch Alarm State Change
+              source:
+                - aws.cloudwatch
+          Type: EventBridgeRule
+      Handler: index.handler
+      MemorySize: 192
+      Policies:
+        - Statement:
+            - Action: events:PutEvents
+              Effect: Allow
+              Resource: !Sub arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/default
+          Version: "2012-10-17"
+        - Statement:
+            - Action: sts:AssumeRole
+              Effect: Allow
+              Resource: !Sub arn:aws:iam::*:role/${CloudWatchCrossAccountSharingRoleName}
+          Version: "2012-10-17"
+      Runtime: nodejs20.x
+      Tags:
+        prx:meta:tagging-version: "2021-04-07"
+        prx:cloudformation:stack-name: !Ref AWS::StackName
+        prx:cloudformation:stack-id: !Ref AWS::StackId
+        prx:ops:environment: Production
+        prx:dev:application: CloudWatch Toolkit
+      Timeout: 20
+  AlarmSlackNotificationsLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AlarmSlackNotificationsFunction}
+      RetentionInDays: 14
+      Tags:
+        - { Key: prx:meta:tagging-version, Value: "2021-04-07" }
+        - { Key: prx:cloudformation:stack-name, Value: !Ref AWS::StackName }
+        - { Key: prx:cloudformation:stack-id, Value: !Ref AWS::StackId }
+        - { Key: prx:ops:environment, Value: Production }
+        - { Key: prx:dev:application, Value: CloudWatch Toolkit }
+  AlarmSlackNotificationsErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "MINOR [CloudWatch] Alarm Slack Notifications <prod> EXPERIENCING ERRORS"
+      AlarmDescription: >-
+        Errors are occurring on the Lambda function that sends Slack messages
+        for certain CloudWatch alarms. This could mean that some or all
+        alarm notifications are not reaching Slack. Check alarm state in the
+        AWS Console.
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref AlarmSlackNotificationsFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Tags:
+        - { Key: prx:meta:tagging-version, Value: "2021-04-07" }
+        - { Key: prx:cloudformation:stack-name, Value: !Ref AWS::StackName }
+        - { Key: prx:cloudformation:stack-id, Value: !Ref AWS::StackId }
+        - { Key: prx:ops:environment, Value: Production }
+        - { Key: prx:dev:application, Value: CloudWatch Toolkit }
+      Threshold: 0
+      TreatMissingData: notBreaching
+
+  # Sends SMS notifications to a list of phone numbers for certain alarm events
+  # (like Fatal-level alarms) that are seen on the event bus
+  AlarmSmsNotificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/alarm-sms-notifications
+      Description: >-
+        Sends messages to SMS phone numbers in response to CloudWatch Alarms
+        state changes from across the organization. All accounts and all
+        regions forward CloudWatch Alarms state change events to the custom
+        event bus that has rules to trigger this function.
+      Environment:
+        Variables:
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          FATAL_SMS_CONTACT_LIST_SNS_TOPIC_ARN: !Ref FatalSmsContactListSnsTopicArn
+      Events:
+        Alarms:
+          Properties:
+            EventBusName: !Ref OrgSinkEventBus
+            Pattern:
+              detail-type:
+                - CloudWatch Alarm State Change
+              source:
+                - aws.cloudwatch
+          Type: EventBridgeRule
+      Handler: index.handler
+      MemorySize: 128
+      Policies:
+        - Statement:
+            - Action: sns:Publish
+              Effect: Allow
+              Resource: !Ref FatalSmsContactListSnsTopicArn
+          Version: "2012-10-17"
+      Runtime: nodejs18.x
+      Tags:
+        prx:meta:tagging-version: "2021-04-07"
+        prx:cloudformation:stack-name: !Ref AWS::StackName
+        prx:cloudformation:stack-id: !Ref AWS::StackId
+        prx:ops:environment: Production
+        prx:dev:application: CloudWatch Toolkit
+      Timeout: 20
+  AlarmSmsNotificationsLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AlarmSmsNotificationsFunction}
+      RetentionInDays: 14
+      Tags:
+        - { Key: prx:meta:tagging-version, Value: "2021-04-07" }
+        - { Key: prx:cloudformation:stack-name, Value: !Ref AWS::StackName }
+        - { Key: prx:cloudformation:stack-id, Value: !Ref AWS::StackId }
+        - { Key: prx:ops:environment, Value: Production }
+        - { Key: prx:dev:application, Value: CloudWatch Toolkit }
+  AlarmSmsNotificationsErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "MINOR [CloudWatch] Alarm SMS Notifications <prod> EXPERIENCING ERRORS"
+      AlarmDescription: >-
+        Errors are occurring on the Lambda function that sends SMS messages for
+        certain CloudWatch alarms. Make sure you aware of all outstanding
+        fatal-level alarms.
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref AlarmSmsNotificationsFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Tags:
+        - { Key: prx:meta:tagging-version, Value: "2021-04-07" }
+        - { Key: prx:cloudformation:stack-name, Value: !Ref AWS::StackName }
+        - { Key: prx:cloudformation:stack-id, Value: !Ref AWS::StackId }
+        - { Key: prx:ops:environment, Value: Production }
+        - { Key: prx:dev:application, Value: CloudWatch Toolkit }
+      Threshold: 0
+      TreatMissingData: notBreaching
+
+  # Scans certain accounts and regions for long-running CloudWatch alarms and
+  # sends reminder messages to Slack when they are found.
+  AlarmSlackRemindersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/alarm-slack-reminders
+      Description: >-
+        Scans a set of accounts and regions for long-running CloudWatch alarms,
+        and sends a summary to Slack
+      Environment:
+        Variables:
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          CLOUDWATCH_CROSS_ACCOUNT_SHARING_ROLE_NAME: !Ref CloudWatchCrossAccountSharingRoleName
+          SEARCH_REGIONS: !Join [",", !Ref AlarmReminderSearchRegions]
+          SEARCH_ACCOUNTS: !Join [",", !Ref AlarmReminderSearchAccountIds]
+      Events:
+        WeekdayPoller:
+          Properties:
+            Description: >-
+              Invokes the CloudWatch Alarm reminder function on weekdays
+            Enabled: true
+            Schedule: cron(0 1,13,15,17,19,21,23 ? * MON-FRI *)
+          Type: Schedule
+        WeekendPoller:
+          Properties:
+            Description: >-
+              Invokes the CloudWatch Alarm reminder function on weekends
+            Enabled: true
+            Schedule: cron(0 1,13,17,21 ? * SAT-SUN *)
+          Type: Schedule
+      Handler: index.handler
+      MemorySize: 192
+      Policies:
+        - Statement:
+            - Action: events:PutEvents
+              Effect: Allow
+              Resource: !Sub arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/default
+          Version: "2012-10-17"
+        - Statement:
+            - Action: sts:AssumeRole
+              Effect: Allow
+              Resource: !Sub arn:aws:iam::*:role/${CloudWatchCrossAccountSharingRoleName}
+          Version: "2012-10-17"
+      Runtime: nodejs20.x
+      Tags:
+        prx:meta:tagging-version: "2021-04-07"
+        prx:cloudformation:stack-name: !Ref AWS::StackName
+        prx:cloudformation:stack-id: !Ref AWS::StackId
+        prx:ops:environment: Production
+        prx:dev:application: CloudWatch Toolkit
+      Timeout: 60
+  AlarmSlackRemindersLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AlarmSlackRemindersFunction}
+      RetentionInDays: 14
+      Tags:
+        - { Key: prx:meta:tagging-version, Value: "2021-04-07" }
+        - { Key: prx:cloudformation:stack-name, Value: !Ref AWS::StackName }
+        - { Key: prx:cloudformation:stack-id, Value: !Ref AWS::StackId }
+        - { Key: prx:ops:environment, Value: Production }
+        - { Key: prx:dev:application, Value: CloudWatch Toolkit }
+  AlarmSlackRemindersErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "MINOR [CloudWatch] Alarm Slack Reminders <prod> EXPERIENCING ERRORS"
+      AlarmDescription: >-
+        Errors are occurring on the CloudWatch Alarm reminders Lambda function,
+        so there could be some long-running alarms that aren't generating
+        Slack messages.
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref AlarmSlackRemindersFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Tags:
+        - { Key: prx:meta:tagging-version, Value: "2021-04-07" }
+        - { Key: prx:cloudformation:stack-name, Value: !Ref AWS::StackName }
+        - { Key: prx:cloudformation:stack-id, Value: !Ref AWS::StackId }
+        - { Key: prx:ops:environment, Value: Production }
+        - { Key: prx:dev:application, Value: CloudWatch Toolkit }
+      Threshold: 0
+      TreatMissingData: notBreaching

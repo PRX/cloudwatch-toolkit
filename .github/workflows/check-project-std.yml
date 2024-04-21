@@ -1,0 +1,11 @@
+name: Check project standards
+
+on:
+  push:
+  workflow_call:
+
+jobs:
+  check-cloudformation:
+    uses: prx/.github/.github/workflows/check-project-std-cloudformation.yml@main
+  check-javascript:
+    uses: prx/.github/.github/workflows/check-project-std-javascript.yml@main

@@ -1,0 +1,41 @@
+{
+  "name": "cloudwatch-toolkit",
+  "version": "1.0.0",
+  "description": "A collection of utilities that integrate with CloudWatch",
+  "type": "module",
+  "engines": {
+    "node": ">= 20.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PRX/cloudwatch-toolkit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "AGPL-3.0",
+  "private": "true",
+  "bugs": {
+    "url": "https://github.com/PRX/cloudwatch-toolkit/issues"
+  },
+  "homepage": "https://github.com/PRX/cloudwatch-toolkit#readme",
+  "dependencies": {
+    "@aws-sdk/client-cloudwatch": "*",
+    "@aws-sdk/client-eventbridge": "*",
+    "@aws-sdk/client-sns": "*",
+    "@aws-sdk/client-sts": "*"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "*",
+    "@types/node": "*",
+    "eslint": "*",
+    "eslint-config-airbnb-base": "*",
+    "eslint-config-prettier": "*",
+    "eslint-plugin-import": "*",
+    "eslint-plugin-jest": "*",
+    "eslint-plugin-prettier": "*",
+    "jsdoc": "*",
+    "prettier": "*",
+    "typescript": "*",
+    "yarn": "*"
+  }
+}
