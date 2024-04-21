@@ -11,8 +11,8 @@ capabilities = "CAPABILITY_IAM"
 region = "us-east-2"
 resolve_s3 = true
 # Parameter overrides only need to be included when a parameter is changing
-parameter_overrides = [
-  "AlarmReminderSearchAccountIds=561178107736,048723829744,976680550710,151502348212,578003269847",
-  "AlarmReminderSearchRegions=us-east-1,us-east-2,us-west-1,us-west-2",
-  "FatalSmsContactListSnsTopicArn=arn:aws:sns:us-east-2:578003269847:fatal-sms-contact-list-Topic-h2wYEE5u5Rc4"
-]
+# parameter_overrides = [
+#   "AlarmReminderSearchAccountIds=",
+#   "AlarmReminderSearchRegions=",
+#   "FatalSmsContactListSnsTopicArn="
+# ]
