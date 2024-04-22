@@ -59,7 +59,7 @@ import {
 } from "@aws-sdk/client-eventbridge";
 
 import { value as colorValue } from "./color.mjs";
-// import { channel } from "./channels.mjs";
+import { channel } from "./channels.mjs";
 import {
   blocks as buildBlocks,
   fallback as buildFallback,
