@@ -99,8 +99,7 @@ export const handler = async (event) => {
             Detail: JSON.stringify({
               username: "Amazon CloudWatch Alarms",
               icon_emoji: ":ops-cloudwatch-alarm:",
-              // channel: channel(event),
-              channel: "CHZTAGBM2", // temp
+              channel: channel(event),
               attachments: [
                 {
                   color: colorValue(event),
@@ -125,8 +124,7 @@ export const handler = async (event) => {
             Detail: JSON.stringify({
               username: "Amazon CloudWatch Alarms",
               icon_emoji: ":ops-cloudwatch-alarm:",
-              // channel: "G2QHC2N7K", // #ops-warn
-              channel: "CHZTAGBM2", // temp
+              channel: "G2QHC2N7K", // #ops-warn
               text: [
                 "The following CloudWatch alarm event was not handled successfully:",
                 `\n\n*Event ID:* \`${event.id}\`\n\n`,
