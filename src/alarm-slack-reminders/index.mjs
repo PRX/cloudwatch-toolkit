@@ -11,7 +11,7 @@ import {
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
 import regions from "./regions.mjs";
-import { alarmConsole } from "./urls.mjs";
+import { alarmConsole, ssoDeepLink } from "./urls.mjs";
 
 const sts = new STSClient({ apiVersion: "2011-06-15" });
 const eventbridge = new EventBridgeClient({ apiVersion: "2015-10-07" });
@@ -233,7 +233,11 @@ export const handler = async (event) => {
 
   blocks.push(
     ...alarms.MetricAlarms.map((a) => {
-      const lines = [`*<${alarmConsole(a)}|${title(a)}>*`];
+      const accountId = a.AlarmArn.split(":")[4];
+      const url = alarmConsole(a);
+      const ssoUrl = ssoDeepLink(accountId, url);
+
+      const lines = [`*<${ssoUrl}|${title(a)}>*`];
 
       if (a.StateReasonData) {
         const reasonData = JSON.parse(a.StateReasonData);

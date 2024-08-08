@@ -1,4 +1,17 @@
 /**
+ * Creates a deep link to an AWS Console URL in a specific account, using an
+ * IAM Identity Center access role
+ * @param {String} accountId
+ * @param {String} url
+ * @returns
+ */
+export function ssoDeepLink(accountId, url) {
+  const deepLinkRoleName = "AdministratorAccess";
+  const urlEncodedUrl = encodeURIComponent(url);
+  return `https://d-906713e952.awsapps.com/start/#/console?account_id=${accountId}&role_name=${deepLinkRoleName}&destination=${urlEncodedUrl}`;
+}
+
+/**
  * Returns a URL to CloudWatch Alarms console for the alarm that triggered
  * the event.
  * @param {*} alarmDetail
