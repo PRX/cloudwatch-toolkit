@@ -13,9 +13,9 @@ import { logGroupName } from "./log-groups.mjs";
  * @returns
  */
 export function ssoDeepLink(accountId, url) {
-  const deepLinkRoleName = "ViewOnlyAccess";
-  const urlEncodedStackUrl = encodeURIComponent(url);
-  return `https://d-906713e952.awsapps.com/start/#/console?account_id=${accountId}&role_name=${deepLinkRoleName}&destination=${urlEncodedStackUrl}`;
+  const deepLinkRoleName = "AdministratorAccess";
+  const urlEncodedUrl = encodeURIComponent(url);
+  return `https://d-906713e952.awsapps.com/start/#/console?account_id=${accountId}&role_name=${deepLinkRoleName}&destination=${urlEncodedUrl}`;
 }
 
 /**
