@@ -24,6 +24,7 @@ const TAGGED = [
   "PRX/Dovetail/Analytics",
   "PRX/Augury",
   "PRX/Feeder",
+  "PRX/Clickhouse",
 ];
 
 /**
