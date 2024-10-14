@@ -116,8 +116,8 @@ export const handler = async (event) => {
 
   const reports = [];
 
-  const hoursAgo24 = new Date();
-  hoursAgo24.setUTCHours(-24);
+  const hoursAgo26 = new Date();
+  hoursAgo26.setUTCHours(-26);
 
   // eslint-disable-next-line no-restricted-syntax
   for (const accountId of process.env.SEARCH_ACCOUNTS.split(",")) {
@@ -134,7 +134,7 @@ export const handler = async (event) => {
       for (const alarm of data.MetricAlarms.filter(filterByName)) {
         const ts = Date.parse(alarm.StateTransitionedTimestamp);
 
-        if (ts >= +hoursAgo24) {
+        if (ts >= +hoursAgo26) {
           const paginator = paginateDescribeAlarmHistory(
             {
               client: cloudwatch,
@@ -142,7 +142,7 @@ export const handler = async (event) => {
             {
               AlarmName: alarm.alarmName,
               HistoryItemType: "StateUpdate",
-              StartDate: hoursAgo24,
+              StartDate: hoursAgo26,
               EndDate: new Date(),
             },
           );
@@ -182,7 +182,7 @@ export const handler = async (event) => {
     type: "header",
     text: {
       type: "plain_text",
-      text: ":memo: 24-Hour Alarm Report",
+      text: ":memo: 26-Hour Alarm Report",
       emoji: true,
     },
   });
