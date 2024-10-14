@@ -301,3 +301,85 @@ Resources:
         - { Key: prx:dev:application, Value: CloudWatch Toolkit }
       Threshold: 0
       TreatMissingData: notBreaching
+
+  # Scans certain accounts and regions for all alarms, and sends a report
+  # message to Slack with information about any alarms that were active recently
+  AlarmSlackReportFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/alarm-slack-report
+      Description: >-
+        Scans a set of accounts and regions for active alarms,
+        and sends a summary to Slack
+      Environment:
+        Variables:
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          CLOUDWATCH_CROSS_ACCOUNT_SHARING_ROLE_NAME: !Ref CloudWatchCrossAccountSharingRoleName
+          SEARCH_REGIONS: !Join [",", !Ref AlarmReminderSearchRegions]
+          SEARCH_ACCOUNTS: !Join [",", !Ref AlarmReminderSearchAccountIds]
+      Events:
+        WeekdayPoller:
+          Properties:
+            Description: >-
+              Invokes the CloudWatch Alarm report function
+            Enabled: true
+            Schedule: cron(0 16 ? * * *)
+          Type: Schedule
+      Handler: index.handler
+      MemorySize: 192
+      Policies:
+        - Statement:
+            - Action: events:PutEvents
+              Effect: Allow
+              Resource: !Sub arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/default
+          Version: "2012-10-17"
+        - Statement:
+            - Action: sts:AssumeRole
+              Effect: Allow
+              Resource: !Sub arn:aws:iam::*:role/${CloudWatchCrossAccountSharingRoleName}
+          Version: "2012-10-17"
+      Runtime: nodejs20.x
+      Tags:
+        prx:meta:tagging-version: "2021-04-07"
+        prx:cloudformation:stack-name: !Ref AWS::StackName
+        prx:cloudformation:stack-id: !Ref AWS::StackId
+        prx:ops:environment: Production
+        prx:dev:application: CloudWatch Toolkit
+      Timeout: 60
+  AlarmSlackReportLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AlarmSlackReportFunction}
+      RetentionInDays: 14
+      Tags:
+        - { Key: prx:meta:tagging-version, Value: "2021-04-07" }
+        - { Key: prx:cloudformation:stack-name, Value: !Ref AWS::StackName }
+        - { Key: prx:cloudformation:stack-id, Value: !Ref AWS::StackId }
+        - { Key: prx:ops:environment, Value: Production }
+        - { Key: prx:dev:application, Value: CloudWatch Toolkit }
+  AlarmSlackReportErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: "MINOR [CloudWatch] Alarm Slack Report <prod> EXPERIENCING ERRORS"
+      AlarmDescription: >-
+        Errors are occurring on the CloudWatch Alarm report Lambda function,
+        so those reports may not be reaching Slack.
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref AlarmSlackReportFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Tags:
+        - { Key: prx:meta:tagging-version, Value: "2021-04-07" }
+        - { Key: prx:cloudformation:stack-name, Value: !Ref AWS::StackName }
+        - { Key: prx:cloudformation:stack-id, Value: !Ref AWS::StackId }
+        - { Key: prx:ops:environment, Value: Production }
+        - { Key: prx:dev:application, Value: CloudWatch Toolkit }
+      Threshold: 0
+      TreatMissingData: notBreaching
