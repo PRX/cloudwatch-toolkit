@@ -10,8 +10,8 @@ import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
-import regions from "./regions.mjs";
-import { alarmConsole, ssoDeepLink } from "./urls.mjs";
+// import regions from "./regions.mjs";
+// import { alarmConsole, ssoDeepLink } from "./urls.mjs";
 
 const sts = new STSClient({ apiVersion: "2011-06-15" });
 const eventbridge = new EventBridgeClient({ apiVersion: "2015-10-07" });
@@ -83,20 +83,20 @@ async function describeAllAlarms(cwClient, nextToken) {
   return results;
 }
 
-function cleanName(alarmName) {
-  return alarmName
-    .replace(/>/g, "&gt;")
-    .replace(/</g, "&lt;")
-    .replace(/\([A-Za-z0-9_-]+\)$/, "")
-    .replace(/^(FATAL|ERROR|WARN|INFO|CRITICAL|MAJOR|MINOR)/, "")
-    .trim();
-}
+// function cleanName(alarmName) {
+//   return alarmName
+//     .replace(/>/g, "&gt;")
+//     .replace(/</g, "&lt;")
+//     .replace(/\([A-Za-z0-9_-]+\)$/, "")
+//     .replace(/^(FATAL|ERROR|WARN|INFO|CRITICAL|MAJOR|MINOR)/, "")
+//     .trim();
+// }
 
-function title(alarmDetail) {
-  const name = alarmDetail.AlarmName;
-  const region = regions(alarmDetail.AlarmArn.split(":")[3]);
-  return `${alarmDetail.StateValue} | ${region} » ${cleanName(name)}`;
-}
+// function title(alarmDetail) {
+//   const name = alarmDetail.AlarmName;
+//   const region = regions(alarmDetail.AlarmArn.split(":")[3]);
+//   return `${alarmDetail.StateValue} | ${region} » ${cleanName(name)}`;
+// }
 
 function filterByName(alarm) {
   return !(
