@@ -5,12 +5,14 @@ import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 import {
   CloudWatchClient,
   DescribeAlarmsCommand,
+  paginateDescribeAlarmHistory,
 } from "@aws-sdk/client-cloudwatch";
 import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
-// import regions from "./regions.mjs";
+import { ConfiguredRetryStrategy } from "@aws-sdk/util-retry";
+import regions from "./regions.mjs";
 // import { alarmConsole, ssoDeepLink } from "./urls.mjs";
 
 const sts = new STSClient({ apiVersion: "2011-06-15" });
@@ -27,6 +29,10 @@ async function cloudWatchClient(accountId, region) {
   );
 
   return new CloudWatchClient({
+    retryStrategy: new ConfiguredRetryStrategy(
+      10,
+      (attempt) => 100 + attempt * 1000,
+    ),
     apiVersion: "2010-08-01",
     region,
     credentials: {
@@ -47,11 +53,7 @@ async function describeAllAlarms(cwClient, nextToken) {
   /** @type {AlarmType[]} */
   const alarmTypes = ["CompositeAlarm", "MetricAlarm"];
 
-  /** @type {StateValue} */
-  const stateValue = "ALARM";
-
   const params = {
-    StateValue: stateValue,
     AlarmTypes: alarmTypes,
     ...(nextToken && { NextToken: nextToken }),
   };
@@ -83,20 +85,20 @@ async function describeAllAlarms(cwClient, nextToken) {
   return results;
 }
 
-// function cleanName(alarmName) {
-//   return alarmName
-//     .replace(/>/g, "&gt;")
-//     .replace(/</g, "&lt;")
-//     .replace(/\([A-Za-z0-9_-]+\)$/, "")
-//     .replace(/^(FATAL|ERROR|WARN|INFO|CRITICAL|MAJOR|MINOR)/, "")
-//     .trim();
-// }
+function cleanName(alarmName) {
+  return alarmName
+    .replace(/>/g, "&gt;")
+    .replace(/</g, "&lt;")
+    .replace(/\([A-Za-z0-9 _-]+\)$/, "")
+    .replace(/^(FATAL|ERROR|WARN|INFO|CRITICAL|MAJOR|MINOR)/, "")
+    .trim();
+}
 
-// function title(alarmDetail) {
-//   const name = alarmDetail.AlarmName;
-//   const region = regions(alarmDetail.AlarmArn.split(":")[3]);
-//   return `${alarmDetail.StateValue} | ${region} » ${cleanName(name)}`;
-// }
+function title(alarmDetail) {
+  const name = alarmDetail.AlarmName;
+  const region = regions(alarmDetail.AlarmArn.split(":")[3]);
+  return `${region} » ${cleanName(name)}`;
+}
 
 function filterByName(alarm) {
   return !(
@@ -112,10 +114,10 @@ function filterByName(alarm) {
 export const handler = async (event) => {
   console.log(JSON.stringify(event));
 
-  const alarms = {
-    CompositeAlarms: [],
-    MetricAlarms: [],
-  };
+  const reports = [];
+
+  const hoursAgo24 = new Date();
+  hoursAgo24.setUTCHours(-24);
 
   // eslint-disable-next-line no-restricted-syntax
   for (const accountId of process.env.SEARCH_ACCOUNTS.split(",")) {
@@ -127,18 +129,52 @@ export const handler = async (event) => {
       // eslint-disable-next-line no-await-in-loop
       const data = await describeAllAlarms(cloudwatch, undefined);
 
-      alarms.CompositeAlarms.push(...data.CompositeAlarms);
-      alarms.MetricAlarms.push(...data.MetricAlarms.filter(filterByName));
+      // TODO Handle composite alarms
+      // eslint-disable-next-line no-restricted-syntax
+      for (const alarm of data.MetricAlarms.filter(filterByName)) {
+        const ts = Date.parse(alarm.StateTransitionedTimestamp);
+
+        if (ts >= +hoursAgo24) {
+          const paginator = paginateDescribeAlarmHistory(
+            {
+              client: cloudwatch,
+            },
+            {
+              AlarmName: alarm.alarmName,
+              HistoryItemType: "StateUpdate",
+              StartDate: hoursAgo24,
+              EndDate: new Date(),
+            },
+          );
+
+          const alarmHistoryItems = [];
+          // eslint-disable-next-line no-restricted-syntax, no-await-in-loop
+          for await (const page of paginator) {
+            alarmHistoryItems.push(...page.AlarmHistoryItems);
+          }
+
+          // const history = await cloudwatch.send(
+          //   new DescribeAlarmHistoryCommand(),
+          // );
+
+          const toAlarmCount = alarmHistoryItems.filter((i) =>
+            i.HistorySummary.includes("to ALARM"),
+          ).length;
+
+          reports.push({
+            Alarm: alarm,
+            Count: toAlarmCount,
+          });
+        }
+      }
     }
   }
 
-  console.log(JSON.stringify(alarms));
-
-  const count = alarms.CompositeAlarms.length + alarms.MetricAlarms.length;
+  console.log(reports);
 
   const blocks = [];
 
-  if (count === 0) {
+  if (reports.length === 0) {
     return;
   }
 
@@ -151,28 +187,22 @@ export const handler = async (event) => {
     },
   });
 
-  // blocks.push(
-  //   ...alarms.MetricAlarms.map((a) => {
-  //     const accountId = a.AlarmArn.split(":")[4];
-  //     const url = alarmConsole(a);
-  //     const ssoUrl = ssoDeepLink(accountId, url);
+  const lines = reports.map((r) => {
+    // const accountId = r.Alarm.AlarmArn.split(":")[4];
+    // const url = alarmConsole(r.Alarm);
+    // const ssoUrl = ssoDeepLink(accountId, url);
 
-  //     const lines = [`*<${ssoUrl}|${title(a)}>*`];
+    return `*${title(r.Alarm)}*: \`${r.Count}\``;
+    // return `*<${ssoUrl}|${title(r.Alarm)}>*`;
+  });
 
-  //     if (a.StateReasonData) {
-  //       const reasonData = JSON.parse(a.StateReasonData);
-  //       lines.push(started(reasonData));
-  //     }
-
-  //     return {
-  //       type: "section",
-  //       text: {
-  //         type: "mrkdwn",
-  //         text: lines.join("\n"),
-  //       },
-  //     };
-  //   }),
-  // );
+  blocks.push({
+    type: "section",
+    text: {
+      type: "mrkdwn",
+      text: lines.join("\n"),
+    },
+  });
 
   await eventbridge.send(
     new PutEventsCommand({
@@ -183,7 +213,7 @@ export const handler = async (event) => {
           Detail: JSON.stringify({
             username: "Amazon CloudWatch Alarms",
             icon_emoji: ":ops-cloudwatch-alarm:",
-            // channel: "G2QH6NMEH", // #ops-error
+            // channel: "G2QHBL6UX", // #ops-info
             channel: "CHZTAGBM2", // #sandbox2
             attachments: [
               {

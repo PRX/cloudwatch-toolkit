@@ -345,7 +345,7 @@ Resources:
         prx:cloudformation:stack-id: !Ref AWS::StackId
         prx:ops:environment: Production
         prx:dev:application: CloudWatch Toolkit
-      Timeout: 60
+      Timeout: 120
   AlarmSlackReportLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Delete

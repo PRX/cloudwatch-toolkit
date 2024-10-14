@@ -22,7 +22,8 @@
     "@aws-sdk/client-cloudwatch": "*",
     "@aws-sdk/client-eventbridge": "*",
     "@aws-sdk/client-sns": "*",
-    "@aws-sdk/client-sts": "*"
+    "@aws-sdk/client-sts": "*",
+    "@aws-sdk/util-retry": "*"
   },
   "devDependencies": {
     "@types/aws-lambda": "*",
