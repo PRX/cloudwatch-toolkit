@@ -213,8 +213,7 @@ export const handler = async (event) => {
           Detail: JSON.stringify({
             username: "Amazon CloudWatch Alarms",
             icon_emoji: ":ops-cloudwatch-alarm:",
-            // channel: "G2QHBL6UX", // #ops-info
-            channel: "CHZTAGBM2", // #sandbox2
+            channel: "G2QHBL6UX", // #ops-info
             attachments: [
               {
                 color: "#a30200",
