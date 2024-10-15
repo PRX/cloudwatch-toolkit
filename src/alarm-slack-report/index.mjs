@@ -140,7 +140,7 @@ export const handler = async (event) => {
               client: cloudwatch,
             },
             {
-              AlarmName: alarm.alarmName,
+              AlarmName: alarm.AlarmName,
               HistoryItemType: "StateUpdate",
               StartDate: hoursAgo26,
               EndDate: new Date(),
@@ -152,10 +152,6 @@ export const handler = async (event) => {
           for await (const page of paginator) {
             alarmHistoryItems.push(...page.AlarmHistoryItems);
           }
-
-          // const history = await cloudwatch.send(
-          //   new DescribeAlarmHistoryCommand(),
-          // );
 
           const toAlarmCount = alarmHistoryItems.filter((i) =>
             i.HistorySummary.includes("to ALARM"),
@@ -169,8 +165,6 @@ export const handler = async (event) => {
       }
     }
   }
-
-  console.log(reports);
 
   const blocks = [];
 
