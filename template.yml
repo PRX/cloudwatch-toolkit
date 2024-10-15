@@ -323,7 +323,7 @@ Resources:
             Description: >-
               Invokes the CloudWatch Alarm report function
             Enabled: true
-            Schedule: cron(10 16 ? * * *)
+            Schedule: cron(10 13 ? * * *)
           Type: Schedule
       Handler: index.handler
       MemorySize: 192
