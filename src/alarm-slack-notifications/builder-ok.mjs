@@ -1,5 +1,6 @@
 /** @typedef {import('./index.mjs').EventBridgeCloudWatchAlarmsEvent} EventBridgeCloudWatchAlarmsEvent */
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmsOutput} DescribeAlarmsOutput */
+/** @typedef {import('@aws-sdk/client-cloudwatch').ListTagsForResourceOutput} ListTagsForResourceOutput */
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmHistoryOutput} DescribeAlarmHistoryOutput */
 /** @typedef {import('@aws-sdk/client-cloudwatch').GetMetricDataOutput} GetMetricDataOutput */
 /** @typedef {import('@aws-sdk/client-cloudwatch').CloudWatchClient} CloudWatchClient */
@@ -154,9 +155,10 @@ function duration(event) {
  * @param {EventBridgeCloudWatchAlarmsEvent} event
  * @param {DescribeAlarmsOutput} desc
  * @param {DescribeAlarmHistoryOutput} history
+ * @param {ListTagsForResourceOutput} tagList
  * @returns {Promise<String[]>}
  */
-async function basics(event, desc, history) {
+async function basics(event, desc, history, tagList) {
   let line = "";
 
   line = line.concat(duration(event));
@@ -167,7 +169,7 @@ async function basics(event, desc, history) {
 
   // Not all alarms can be associated with logs, so only add when there
   // is a URL to use
-  const logsUrl = await logsConsoleUrl(event, desc);
+  const logsUrl = await logsConsoleUrl(event, desc, tagList);
   if (logsUrl) {
     line = line.concat(` • <${logsUrl}|Logs>`);
   }
@@ -274,12 +276,19 @@ async function datapoints(event, desc, cloudWatchClient) {
  * @param {EventBridgeCloudWatchAlarmsEvent} event
  * @param {DescribeAlarmsOutput} desc
  * @param {DescribeAlarmHistoryOutput} history
+ * @param {ListTagsForResourceOutput} tagList
  * @param {CloudWatchClient} cloudWatchClient
  * @returns {Promise<String[]>}
  */
-export async function detailLines(event, desc, history, cloudWatchClient) {
+export async function detailLines(
+  event,
+  desc,
+  history,
+  tagList,
+  cloudWatchClient,
+) {
   return [
-    ...(await basics(event, desc, history)),
+    ...(await basics(event, desc, history, tagList)),
     ...(await datapoints(event, desc, cloudWatchClient)),
   ];
 }

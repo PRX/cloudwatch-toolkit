@@ -1,6 +1,7 @@
 /** @typedef {import('./index.mjs').EventBridgeCloudWatchAlarmsEvent} EventBridgeCloudWatchAlarmsEvent */
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmsOutput} DescribeAlarmsOutput */
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmHistoryOutput} DescribeAlarmHistoryOutput */
+/** @typedef {import('@aws-sdk/client-cloudwatch').ListTagsForResourceOutput} ListTagsForResourceOutput */
 
 import { ascii } from "./operators.mjs";
 import { logGroupName } from "./log-groups.mjs";
@@ -193,10 +194,11 @@ function singleMetricAlarmMetricsConsole(event, desc, history) {
  *
  * @param {EventBridgeCloudWatchAlarmsEvent} event
  * @param {DescribeAlarmsOutput} desc
+ * @param {ListTagsForResourceOutput} tagList
  * @returns {Promise<String>}
  */
-async function logsInsightsConsole(event, desc) {
-  const logGroup = await logGroupName(event, desc);
+async function logsInsightsConsole(event, desc, tagList) {
+  const logGroup = await logGroupName(event, desc, tagList);
 
   if (!logGroup) {
     return "";
@@ -244,6 +246,14 @@ async function logsInsightsConsole(event, desc) {
     editorString: "fields @timestamp, @message | sort @timestamp desc",
     source: [logGroup],
   };
+
+  const insightsQueryTag = tagList?.Tags?.find(
+    (t) => t.Key === "prx:ops:cloudwatch-logs-insights-query",
+  );
+
+  if (insightsQueryTag) {
+    queryPayload.editorString = insightsQueryTag.Value;
+  }
 
   // The payload is CloudWatch URL encoded
   const encodedPayload = cwUrlEncode(queryPayload);
@@ -310,8 +320,9 @@ export function metricsConsoleUrl(event, desc, history) {
 /**
  * @param {EventBridgeCloudWatchAlarmsEvent} event
  * @param {DescribeAlarmsOutput} desc
+ * @param {ListTagsForResourceOutput} tagList
  * @returns {Promise<String>}
  */
-export async function logsConsoleUrl(event, desc) {
-  return logsInsightsConsole(event, desc);
+export async function logsConsoleUrl(event, desc, tagList) {
+  return logsInsightsConsole(event, desc, tagList);
 }

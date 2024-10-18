@@ -1,6 +1,7 @@
 /** @typedef {import('../index.mjs').EventBridgeCloudWatchAlarmsEvent} EventBridgeCloudWatchAlarmsEvent */
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmsOutput} DescribeAlarmsOutput */
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmHistoryOutput} DescribeAlarmHistoryOutput */
+/** @typedef {import('@aws-sdk/client-cloudwatch').ListTagsForResourceOutput} ListTagsForResourceOutput */
 /** @typedef {import('@aws-sdk/client-cloudwatch').MetricAlarm} MetricAlarm */
 
 import { comparison } from "../operators.mjs";
@@ -27,9 +28,10 @@ function precision(a) {
  * @param {EventBridgeCloudWatchAlarmsEvent} event
  * @param {DescribeAlarmsOutput} desc
  * @param {DescribeAlarmHistoryOutput} history
+ * @param {ListTagsForResourceOutput} tagList
  * * @returns {Promise<String[]>}
  */
-async function started(event, desc, history) {
+async function started(event, desc, history, tagList) {
   if (event.detail.state.reasonData) {
     const data = JSON.parse(event.detail.state.reasonData);
 
@@ -64,7 +66,7 @@ async function started(event, desc, history) {
 
       let console = `*CloudWatch:* <${metricsUrl}| Metrics>`;
 
-      const logsUrl = await logsConsoleUrl(event, desc);
+      const logsUrl = await logsConsoleUrl(event, desc, tagList);
       if (logsUrl) {
         console = console.concat(` • <${logsUrl}|Logs>`);
       }
@@ -254,12 +256,13 @@ function cause(event, desc, history) {
  * @param {EventBridgeCloudWatchAlarmsEvent} event
  * @param {DescribeAlarmsOutput} desc
  * @param {DescribeAlarmHistoryOutput} history
+ * @param {ListTagsForResourceOutput} tagList
  * @returns {Promise<String[]>}
  */
-export async function detailLines(event, desc, history) {
+export async function detailLines(event, desc, history, tagList) {
   return [
     ...cause(event, desc, history),
-    ...(await started(event, desc, history)),
+    ...(await started(event, desc, history, tagList)),
     ...datapoints(event, desc),
     ...last24Hours(history),
   ];

@@ -1,14 +1,7 @@
 /** @typedef {import('./index.mjs').EventBridgeCloudWatchAlarmsEvent} EventBridgeCloudWatchAlarmsEvent */
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmsOutput} DescribeAlarmsOutput */
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmHistoryOutput} DescribeAlarmHistoryOutput */
-
-import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
-import {
-  CloudWatchClient,
-  ListTagsForResourceCommand,
-} from "@aws-sdk/client-cloudwatch";
-
-const sts = new STSClient({ apiVersion: "2011-06-15" });
+/** @typedef {import('@aws-sdk/client-cloudwatch').ListTagsForResourceOutput} ListTagsForResourceOutput */
 
 // Alarms with certain namespaces can look up a log group from their resource
 // tags, when there's no way to infer the log group from the alarm's
@@ -28,38 +21,14 @@ const TAGGED = [
 ];
 
 /**
- * @param {EventBridgeCloudWatchAlarmsEvent} event
- */
-async function cloudWatchClient(event) {
-  const accountId = event.account;
-  const roleName = process.env.CROSS_ACCOUNT_CLOUDWATCH_ALARM_IAM_ROLE_NAME;
-
-  const role = await sts.send(
-    new AssumeRoleCommand({
-      RoleArn: `arn:aws:iam::${accountId}:role/${roleName}`,
-      RoleSessionName: "notifications_lambda_reader",
-    }),
-  );
-
-  return new CloudWatchClient({
-    apiVersion: "2010-08-01",
-    region: event.region,
-    credentials: {
-      accessKeyId: role.Credentials.AccessKeyId,
-      secretAccessKey: role.Credentials.SecretAccessKey,
-      sessionToken: role.Credentials.SessionToken,
-    },
-  });
-}
-
-/**
  * Returns the name of a log group associated with the alarm that triggerd
  * and event.
  * @param {EventBridgeCloudWatchAlarmsEvent} event
  * @param {DescribeAlarmsOutput} desc
+ * @param {ListTagsForResourceOutput} tagList
  * @returns {Promise<String>}
  */
-export async function logGroupName(event, desc) {
+export async function logGroupName(event, desc, tagList) {
   // For Lambda alarms, look for a FunctionName dimension, and use that name
   // to construct the log group name
   if (
@@ -92,12 +61,6 @@ export async function logGroupName(event, desc) {
   // the tags on the alarm should be inspected to see if an explicit log
   // group name is specified. If so, use that.
   else if (TAGGED.includes(desc?.MetricAlarms?.[0]?.Namespace)) {
-    const cloudwatch = await cloudWatchClient(event);
-    const tagList = await cloudwatch.send(
-      new ListTagsForResourceCommand({
-        ResourceARN: event.resources[0],
-      }),
-    );
     const logGroupNameTag = tagList?.Tags?.find(
       (t) => t.Key === "prx:ops:cloudwatch-log-group-name",
     );

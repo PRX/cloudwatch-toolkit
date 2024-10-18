@@ -1,12 +1,14 @@
 /** @typedef {import('./index.mjs').EventBridgeCloudWatchAlarmsEvent} EventBridgeCloudWatchAlarmsEvent */
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmsOutput} DescribeAlarmsOutput */
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmHistoryOutput} DescribeAlarmHistoryOutput */
+/** @typedef {import('@aws-sdk/client-cloudwatch').ListTagsForResourceOutput} ListTagsForResourceOutput */
 
 import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 import {
   CloudWatchClient,
   DescribeAlarmsCommand,
   paginateDescribeAlarmHistory,
+  ListTagsForResourceCommand,
 } from "@aws-sdk/client-cloudwatch";
 import { ConfiguredRetryStrategy } from "@aws-sdk/util-retry";
 import { alarmConsoleUrl } from "./urls.mjs";
@@ -79,16 +81,17 @@ async function cloudWatchClient(event) {
  * @param {EventBridgeCloudWatchAlarmsEvent} event
  * @param {DescribeAlarmsOutput} desc
  * @param {DescribeAlarmHistoryOutput} history
+ * @param {ListTagsForResourceOutput} tagList
  * @returns {Promise<String[]>}
  */
-async function detailLines(event, desc, history, cwClient) {
+async function detailLines(event, desc, history, tagList, cwClient) {
   switch (event.detail.state.value) {
     case "INSUFFICIENT_DATA":
       return ["Details not implemented for `INSUFFICIENT_DATA`"];
     case "OK":
-      return okDetailLines(event, desc, history, cwClient);
+      return okDetailLines(event, desc, history, tagList, cwClient);
     case "ALARM":
-      return alarmDetailLines(event, desc, history);
+      return alarmDetailLines(event, desc, history, tagList);
     default:
       return [];
   }
@@ -124,6 +127,13 @@ export async function blocks(event) {
     }),
   );
 
+  // Fetch the resource tags for the alarm
+  const tagList = await cloudwatch.send(
+    new ListTagsForResourceCommand({
+      ResourceARN: event.resources[0],
+    }),
+  );
+
   // Fetch all state transitions from the last 24 hours
   const history = { AlarmHistoryItems: [] };
   const historyStart = new Date();
@@ -156,7 +166,7 @@ export async function blocks(event) {
 
   const lines = [];
 
-  lines.push(...(await detailLines(event, desc, history, cloudwatch)));
+  lines.push(...(await detailLines(event, desc, history, tagList, cloudwatch)));
 
   let text = lines.join("\n");
 
