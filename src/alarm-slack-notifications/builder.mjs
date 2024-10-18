@@ -8,6 +8,7 @@ import {
   DescribeAlarmHistoryCommand,
   DescribeAlarmsCommand,
 } from "@aws-sdk/client-cloudwatch";
+import { ConfiguredRetryStrategy } from "@aws-sdk/util-retry";
 import { alarmConsoleUrl } from "./urls.mjs";
 import regions from "./regions.mjs";
 import { detailLines as okDetailLines } from "./builder-ok.mjs";
@@ -62,6 +63,10 @@ async function cloudWatchClient(event) {
   return new CloudWatchClient({
     apiVersion: "2010-08-01",
     region: event.region,
+    retryStrategy: new ConfiguredRetryStrategy(
+      10,
+      (attempt) => 100 + attempt * 1000,
+    ),
     credentials: {
       accessKeyId: role.Credentials.AccessKeyId,
       secretAccessKey: role.Credentials.SecretAccessKey,
