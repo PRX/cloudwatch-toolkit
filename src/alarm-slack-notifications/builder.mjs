@@ -5,8 +5,8 @@
 import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 import {
   CloudWatchClient,
-  DescribeAlarmHistoryCommand,
   DescribeAlarmsCommand,
+  paginateDescribeAlarmHistory,
 } from "@aws-sdk/client-cloudwatch";
 import { ConfiguredRetryStrategy } from "@aws-sdk/util-retry";
 import { alarmConsoleUrl } from "./urls.mjs";
@@ -123,18 +123,28 @@ export async function blocks(event) {
       AlarmNames: [event.detail.alarmName],
     }),
   );
+
   // Fetch all state transitions from the last 24 hours
+  const history = { AlarmHistoryItems: [] };
   const historyStart = new Date();
   historyStart.setUTCHours(-24);
-  const history = await cloudwatch.send(
-    new DescribeAlarmHistoryCommand({
+  const paginator = paginateDescribeAlarmHistory(
+    {
+      client: cloudwatch,
+    },
+    {
       AlarmName: event.detail.alarmName,
       HistoryItemType: "StateUpdate",
       StartDate: historyStart,
       EndDate: new Date(),
-      MaxRecords: 100,
-    }),
+    },
   );
+
+  // eslint-disable-next-line no-restricted-syntax, no-await-in-loop
+  for await (const page of paginator) {
+    history.AlarmHistoryItems.push(...page.AlarmHistoryItems);
+  }
+
   // Linked title block
   blox.push({
     type: "section",
