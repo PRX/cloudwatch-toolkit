@@ -84,7 +84,7 @@ Resources:
               Effect: Allow
               Resource: !Sub arn:aws:iam::*:role/${CloudWatchCrossAccountSharingRoleName}
           Version: "2012-10-17"
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Tags:
         prx:meta:tagging-version: "2021-04-07"
         prx:cloudformation:stack-name: !Ref AWS::StackName
@@ -255,7 +255,7 @@ Resources:
               Effect: Allow
               Resource: !Sub arn:aws:iam::*:role/${CloudWatchCrossAccountSharingRoleName}
           Version: "2012-10-17"
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Tags:
         prx:meta:tagging-version: "2021-04-07"
         prx:cloudformation:stack-name: !Ref AWS::StackName
@@ -338,7 +338,7 @@ Resources:
               Effect: Allow
               Resource: !Sub arn:aws:iam::*:role/${CloudWatchCrossAccountSharingRoleName}
           Version: "2012-10-17"
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Tags:
         prx:meta:tagging-version: "2021-04-07"
         prx:cloudformation:stack-name: !Ref AWS::StackName
