@@ -3,6 +3,7 @@ name: Check project standards
 on:
   push:
   workflow_call:
+  workflow_dispatch:
 
 jobs:
   check-cloudformation:
