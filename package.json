@@ -26,16 +26,10 @@
     "@aws-sdk/util-retry": "*"
   },
   "devDependencies": {
+    "@biomejs/biome@beta": "*",
     "@types/aws-lambda": "*",
     "@types/node": "*",
-    "eslint": "*",
-    "eslint-config-airbnb-base": "*",
-    "eslint-config-prettier": "*",
-    "eslint-plugin-import": "*",
-    "eslint-plugin-jest": "*",
-    "eslint-plugin-prettier": "*",
     "jsdoc": "*",
-    "prettier": "*",
     "typescript": "*",
     "yarn": "*"
   }
