@@ -1,7 +1,6 @@
 /** @typedef { import('@aws-sdk/client-cloudwatch').AlarmType } AlarmType */
 /** @typedef { import('@aws-sdk/client-cloudwatch').StateValue } StateValue */
 
-import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 import {
   CloudWatchClient,
   DescribeAlarmsCommand,
@@ -11,8 +10,10 @@ import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
+import { AssumeRoleCommand, STSClient } from "@aws-sdk/client-sts";
 import { ConfiguredRetryStrategy } from "@aws-sdk/util-retry";
 import regions from "./regions.mjs";
+
 // import { alarmConsole, ssoDeepLink } from "./urls.mjs";
 
 const sts = new STSClient({ apiVersion: "2011-06-15" });

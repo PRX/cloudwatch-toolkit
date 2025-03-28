@@ -3,18 +3,18 @@
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmHistoryOutput} DescribeAlarmHistoryOutput */
 /** @typedef {import('@aws-sdk/client-cloudwatch').ListTagsForResourceOutput} ListTagsForResourceOutput */
 
-import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 import {
   CloudWatchClient,
   DescribeAlarmsCommand,
-  paginateDescribeAlarmHistory,
   ListTagsForResourceCommand,
+  paginateDescribeAlarmHistory,
 } from "@aws-sdk/client-cloudwatch";
+import { AssumeRoleCommand, STSClient } from "@aws-sdk/client-sts";
 import { ConfiguredRetryStrategy } from "@aws-sdk/util-retry";
-import { alarmConsoleUrl } from "./urls.mjs";
-import regions from "./regions.mjs";
-import { detailLines as okDetailLines } from "./builder-ok.mjs";
 import { detailLines as alarmDetailLines } from "./builder-alarm.mjs";
+import { detailLines as okDetailLines } from "./builder-ok.mjs";
+import regions from "./regions.mjs";
+import { alarmConsoleUrl } from "./urls.mjs";
 
 const sts = new STSClient({ apiVersion: "2011-06-15" });
 

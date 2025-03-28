@@ -5,8 +5,8 @@
 /** @typedef {import('@aws-sdk/client-cloudwatch').GetMetricDataOutput} GetMetricDataOutput */
 /** @typedef {import('@aws-sdk/client-cloudwatch').CloudWatchClient} CloudWatchClient */
 
-import { ScanBy, GetMetricDataCommand } from "@aws-sdk/client-cloudwatch";
-import { metricsConsoleUrl, logsConsoleUrl } from "./urls.mjs";
+import { GetMetricDataCommand, ScanBy } from "@aws-sdk/client-cloudwatch";
+import { logsConsoleUrl, metricsConsoleUrl } from "./urls.mjs";
 
 /**
  * Returns the number of decimal places in a number

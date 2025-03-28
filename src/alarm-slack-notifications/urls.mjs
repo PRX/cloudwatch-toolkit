@@ -3,8 +3,8 @@
 /** @typedef {import('@aws-sdk/client-cloudwatch').DescribeAlarmHistoryOutput} DescribeAlarmHistoryOutput */
 /** @typedef {import('@aws-sdk/client-cloudwatch').ListTagsForResourceOutput} ListTagsForResourceOutput */
 
-import { ascii } from "./operators.mjs";
 import { logGroupName } from "./log-groups.mjs";
+import { ascii } from "./operators.mjs";
 
 /**
  * Creates a deep link to an AWS Console URL in a specific account, using an

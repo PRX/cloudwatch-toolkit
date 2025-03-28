@@ -5,7 +5,7 @@
 /** @typedef {import('@aws-sdk/client-cloudwatch').MetricAlarm} MetricAlarm */
 
 import { comparison } from "../operators.mjs";
-import { metricsConsoleUrl, logsConsoleUrl } from "../urls.mjs";
+import { logsConsoleUrl, metricsConsoleUrl } from "../urls.mjs";
 
 /**
  * Returns the number of decimal places in a number

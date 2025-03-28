@@ -57,13 +57,12 @@ import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
-
-import { value as colorValue } from "./color.mjs";
-import { channel } from "./channels.mjs";
 import {
   blocks as buildBlocks,
   fallback as buildFallback,
 } from "./builder.mjs";
+import { channel } from "./channels.mjs";
+import { value as colorValue } from "./color.mjs";
 
 const eventbridge = new EventBridgeClient({ apiVersion: "2015-10-07" });
 

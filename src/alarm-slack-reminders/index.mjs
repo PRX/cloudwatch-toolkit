@@ -1,7 +1,6 @@
 /** @typedef { import('@aws-sdk/client-cloudwatch').AlarmType } AlarmType */
 /** @typedef { import('@aws-sdk/client-cloudwatch').StateValue } StateValue */
 
-import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 import {
   CloudWatchClient,
   DescribeAlarmsCommand,
@@ -10,6 +9,7 @@ import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
+import { AssumeRoleCommand, STSClient } from "@aws-sdk/client-sts";
 import regions from "./regions.mjs";
 import { alarmConsole, ssoDeepLink } from "./urls.mjs";
 
