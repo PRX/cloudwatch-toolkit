@@ -88,9 +88,9 @@
     tslib "^2.6.2"
 
 "@aws-sdk/client-eventbridge@*":
-  version "3.782.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-eventbridge/-/client-eventbridge-3.782.0.tgz#2f44ee04fcc0faa5e8b07615043e2b4de90260c9"
-  integrity sha512-O97Xqhb31/r8q8mD7zz80SUNAe/v+6NO6XHBMksUDP32VPuxsTusceots70ihnD60FnfAjm1A+T2sGUPiFaKkw==
+  version "3.783.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-eventbridge/-/client-eventbridge-3.783.0.tgz#7f0f420b827120a1090c151f0138cda2733bd6e5"
+  integrity sha512-33VXomAb5h2r1stV81vuaYAEZK1M5/GHvNp3QSBf0ZnMSEOLl4XmoSXLkC+8JyXq8GB7GCmCi+W+oMuyS3CwKg==
   dependencies:
     "@aws-crypto/sha256-browser" "5.2.0"
     "@aws-crypto/sha256-js" "5.2.0"
