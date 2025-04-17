@@ -6,9 +6,9 @@ updates:
       interval: daily
     open-pull-requests-limit: 10
     groups:
-      aws-sdk:
+      all-npm:
         patterns:
-          - "@aws-sdk/*"
+          - "*"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
