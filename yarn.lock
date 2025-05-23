@@ -41,9 +41,9 @@
     tslib "^2.6.2"
 
 "@aws-sdk/client-cloudwatch@*":
-  version "3.812.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-cloudwatch/-/client-cloudwatch-3.812.0.tgz#e8b5b7eb8cd1c9cdfe587af37b9976ac0da6be34"
-  integrity sha512-LsjIWkHW3kG4bM4V4rwG0c2N/OXo0ICQgKCVPKQ7WSZskLAMrjeTqQKO1XLfXb2FD0ZjJHQBwyeQ92EIX+DloA==
+  version "3.815.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-cloudwatch/-/client-cloudwatch-3.815.0.tgz#e5e34ebad64cf8fbfbf1b637ab30150a7568d1cb"
+  integrity sha512-wW4Yqehd2icjusQ60aeipAkQ7yGd+tBs8owqnYpWjBinKWUVREjrbv5WGDyYB+utcZ0b4qG/kTtPYtKMq3XtHA==
   dependencies:
     "@aws-crypto/sha256-browser" "5.2.0"
     "@aws-crypto/sha256-js" "5.2.0"
@@ -1131,9 +1131,9 @@
   integrity sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==
 
 "@types/node@*":
-  version "22.15.20"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.20.tgz#ce4f947a8ff31120032f66d46b0851554e9f25f6"
-  integrity sha512-A6BohGFRGHAscJsTslDCA9JG7qSJr/DWUvrvY8yi9IgnGtMxCyat7vvQ//MFa0DnLsyuS3wYTpLdw4Hf+Q5JXw==
+  version "22.15.21"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.21.tgz#196ef14fe20d87f7caf1e7b39832767f9a995b77"
+  integrity sha512-EV/37Td6c+MgKAbkcLG6vqZ2zEYHD7bvSrzqqs2RIhbA6w3x+Dqz8MZM3sP6kGTeLrdoOgKZe+Xja7tUB2DNkQ==
   dependencies:
     undici-types "~6.21.0"
 
