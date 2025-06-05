@@ -88,9 +88,9 @@
     tslib "^2.6.2"
 
 "@aws-sdk/client-eventbridge@*":
-  version "3.823.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-eventbridge/-/client-eventbridge-3.823.0.tgz#cddce3cbddc971ae1b00e56c91496ca382542d4f"
-  integrity sha512-94nQX7THLZ7l/05gNTTdumg7KUK/02zjOTkR17LyaO6Hg3B6+i2uV2Zw/ggQSSg42PRCqDuRyWIwLOfGOtHH5g==
+  version "3.824.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-eventbridge/-/client-eventbridge-3.824.0.tgz#070fd69706fd880c2e7515e0c14479599f5d15bb"
+  integrity sha512-hCcv/E4edT+5e/p8fboV0HAfcRek7m9HvC4lRwPkjbqjD+KKK7avU71yGpsjW/gzeIsNJ2CUend9vObq3owzVA==
   dependencies:
     "@aws-crypto/sha256-browser" "5.2.0"
     "@aws-crypto/sha256-js" "5.2.0"
@@ -101,7 +101,7 @@
     "@aws-sdk/middleware-recursion-detection" "3.821.0"
     "@aws-sdk/middleware-user-agent" "3.823.0"
     "@aws-sdk/region-config-resolver" "3.821.0"
-    "@aws-sdk/signature-v4-multi-region" "3.823.0"
+    "@aws-sdk/signature-v4-multi-region" "3.824.0"
     "@aws-sdk/types" "3.821.0"
     "@aws-sdk/util-endpoints" "3.821.0"
     "@aws-sdk/util-user-agent-browser" "3.821.0"
@@ -508,10 +508,10 @@
     "@smithy/util-middleware" "^4.0.4"
     tslib "^2.6.2"
 
-"@aws-sdk/signature-v4-multi-region@3.823.0":
-  version "3.823.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/signature-v4-multi-region/-/signature-v4-multi-region-3.823.0.tgz#f18de514bf0168ed582b329f2fd6e546b1503239"
-  integrity sha512-FAvtmR7G0ppNLa4O2yN8koFYUmUmPuL60UBIFrVb3BBeZvBIFLln69lB8EGtTBpAvVbxknudRZCzYtnOhE4QXg==
+"@aws-sdk/signature-v4-multi-region@3.824.0":
+  version "3.824.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/signature-v4-multi-region/-/signature-v4-multi-region-3.824.0.tgz#0879adeb2d69045c66805faa0285c96bb2606a64"
+  integrity sha512-HBjuWeN6Z1pvJjUvGXdMNLwEypKKB4km6zXj9jsbOOwP8NTL6J5rY+JmlX/mfBTmvzmI0kMu2bxlQ4ME2CIRbA==
   dependencies:
     "@aws-sdk/middleware-sdk-s3" "3.823.0"
     "@aws-sdk/types" "3.821.0"
@@ -1145,9 +1145,9 @@
   integrity sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==
 
 "@types/node@*":
-  version "22.15.29"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.29.tgz#c75999124a8224a3f79dd8b6ccfb37d74098f678"
-  integrity sha512-LNdjOkUDlU1RZb8e1kOIUpN1qQUlzGkEtbVNo53vbrwDg5om6oduhm4SiUaPW5ASTXhAiP0jInWG8Qx9fVlOeQ==
+  version "22.15.30"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.30.tgz#3a20431783e28dd0b0326f84ab386a2ec81d921d"
+  integrity sha512-6Q7lr06bEHdlfplU6YRbgG1SFBdlsfNC4/lX+SkhiTs0cpJkOElmWls8PxDFv4yY/xKb8Y6SO0OmSX4wgqTZbA==
   dependencies:
     undici-types "~6.21.0"
 
