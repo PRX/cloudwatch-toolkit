@@ -26,7 +26,7 @@
     "@aws-sdk/util-retry": "*"
   },
   "devDependencies": {
-    "@biomejs/biome": "*",
+    "@biomejs/biome@beta": "*",
     "@types/aws-lambda": "*",
     "@types/node": "*",
     "jsdoc": "*",
