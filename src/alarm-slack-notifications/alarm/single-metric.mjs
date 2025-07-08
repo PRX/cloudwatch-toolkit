@@ -36,7 +36,7 @@ async function started(event, desc, history, tagList) {
     const data = JSON.parse(event.detail.state.reasonData);
 
     if (data?.startDate || data?.evaluatedDatapoints?.length) {
-      const now = +new Date();
+      const now = Date.now();
 
       const startedAt =
         data.startDate ||
@@ -212,13 +212,13 @@ function evaluationSummary(
 }
 
 /**
- * @param {EventBridgeCloudWatchAlarmsEvent} event
+ * @param {EventBridgeCloudWatchAlarmsEvent} _event
  * @param {DescribeAlarmsOutput} desc
- * @param {DescribeAlarmHistoryOutput} history
+ * @param {DescribeAlarmHistoryOutput} _history
  * @returns {String[]}
  */
 // eslint-disable-next-line no-unused-vars
-function cause(event, desc, history) {
+function cause(_event, desc, _history) {
   const alarm = desc.MetricAlarms[0];
 
   const period = alarm.Period;

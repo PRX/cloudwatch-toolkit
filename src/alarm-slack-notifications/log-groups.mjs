@@ -23,12 +23,12 @@ const TAGGED = [
 /**
  * Returns the name of a log group associated with the alarm that triggerd
  * and event.
- * @param {EventBridgeCloudWatchAlarmsEvent} event
+ * @param {EventBridgeCloudWatchAlarmsEvent} _event
  * @param {DescribeAlarmsOutput} desc
  * @param {ListTagsForResourceOutput} tagList
  * @returns {Promise<String>}
  */
-export async function logGroupName(event, desc, tagList) {
+export async function logGroupName(_event, desc, tagList) {
   // For Lambda alarms, look for a FunctionName dimension, and use that name
   // to construct the log group name
   if (
