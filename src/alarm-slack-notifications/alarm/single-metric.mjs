@@ -113,7 +113,7 @@ function datapoints(event, desc) {
             // value, whichever is larger.
             const digits = Math.min(
               maxDigits,
-              Math.max(pDatapoint, pThreshold),
+              Math.max(pDatapoint, pThreshold)
             );
             return `\`${p.value.toFixed(digits)}\``;
           })
@@ -145,7 +145,7 @@ function datapoints(event, desc) {
 function last24Hours(history) {
   if (history?.AlarmHistoryItems.length) {
     const alarms = history.AlarmHistoryItems.filter((i) =>
-      i.HistorySummary.includes("to ALARM"),
+      i.HistorySummary.includes("to ALARM")
     );
 
     return [`*Last 24 hours:* ${alarms.length} alarms`];
@@ -179,7 +179,7 @@ function evaluationSummary(
   periodInSeconds,
   evaluationPeriods,
   datapointsToAlarm,
-  evaluationInterval,
+  evaluationInterval
 ) {
   let interval = evaluationInterval;
   let intervalUnits = "seconds";
@@ -212,9 +212,9 @@ function evaluationSummary(
 }
 
 /**
- * @param {EventBridgeCloudWatchAlarmsEvent} event
+ * @param {EventBridgeCloudWatchAlarmsEvent} _event
  * @param {DescribeAlarmsOutput} desc
- * @param {DescribeAlarmHistoryOutput} history
+ * @param {DescribeAlarmHistoryOutput} _history
  * @returns {String[]}
  */
 // eslint-disable-next-line no-unused-vars
@@ -244,7 +244,7 @@ function cause(_event, desc, _history) {
         period,
         evaluationPeriods,
         datapointsToAlarm,
-        evaluationInterval,
+        evaluationInterval
       ),
     ]
       .join(" ")
