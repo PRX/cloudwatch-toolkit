@@ -103,7 +103,7 @@ async function metricData(event, cloudWatchClient, desc, startTime, endTime) {
     ScanBy: ScanBy.TIMESTAMP_ASCENDING,
     MetricDataQueries: [
       {
-        Id: "alarmMetricData",
+        Id: 'alarmMetricData',
         MetricStat: {
           Metric: queryMetric,
           Period: event.detail.configuration.metrics[0].metricStat.period,
