@@ -100,7 +100,7 @@ function title(alarmDetail) {
 
 function started(reasonData) {
   if (reasonData?.startDate || reasonData?.evaluatedDatapoints?.length) {
-    const now = +new Date();
+    const now = Date.now();
 
     const startedAt =
       reasonData.startDate ||
@@ -156,7 +156,7 @@ function injectDuration(alarm) {
     const reasonData = JSON.parse(alarm.StateReasonData);
 
     if (reasonData?.startDate || reasonData?.evaluatedDatapoints?.length) {
-      const now = +new Date();
+      const now = Date.now();
 
       const startedAt =
         reasonData.startDate ||

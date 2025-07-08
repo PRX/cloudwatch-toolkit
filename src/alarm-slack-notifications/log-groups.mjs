@@ -28,7 +28,7 @@ const TAGGED = [
  * @param {ListTagsForResourceOutput} tagList
  * @returns {Promise<String>}
  */
-export async function logGroupName(event, desc, tagList) {
+export async function logGroupName(_event, desc, tagList) {
   // For Lambda alarms, look for a FunctionName dimension, and use that name
   // to construct the log group name
   if (
