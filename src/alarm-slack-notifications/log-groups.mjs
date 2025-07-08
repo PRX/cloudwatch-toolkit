@@ -36,7 +36,7 @@ export async function logGroupName(_event, desc, tagList) {
     desc?.MetricAlarms?.[0]?.Dimensions?.length
   ) {
     const functionDimension = desc.MetricAlarms[0].Dimensions.find(
-      (d) => d.Name === "FunctionName"
+      (d) => d.Name === "FunctionName",
     );
 
     if (functionDimension) {
@@ -50,7 +50,7 @@ export async function logGroupName(_event, desc, tagList) {
     desc?.MetricAlarms?.[0]?.Dimensions?.length
   ) {
     const functionDimension = desc.MetricAlarms[0].Dimensions.find(
-      (d) => d.Name === "LambdaFunctionArn"
+      (d) => d.Name === "LambdaFunctionArn",
     );
 
     if (functionDimension) {
@@ -62,7 +62,7 @@ export async function logGroupName(_event, desc, tagList) {
   // group name is specified. If so, use that.
   else if (TAGGED.includes(desc?.MetricAlarms?.[0]?.Namespace)) {
     const logGroupNameTag = tagList?.Tags?.find(
-      (t) => t.Key === "prx:ops:cloudwatch-log-group-name"
+      (t) => t.Key === "prx:ops:cloudwatch-log-group-name",
     );
 
     if (logGroupNameTag) {
