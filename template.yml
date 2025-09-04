@@ -51,6 +51,7 @@ Resources:
   AlarmSlackNotificationsFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Architectures: [arm64]
       CodeUri: src/alarm-slack-notifications
       Description: >-
         Sends messages to Slack in response to CloudWatch Alarms state changes
@@ -137,6 +138,7 @@ Resources:
   AlarmSmsNotificationsFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Architectures: [arm64]
       CodeUri: src/alarm-sms-notifications
       Description: >-
         Sends messages to SMS phone numbers in response to CloudWatch Alarms
@@ -217,6 +219,7 @@ Resources:
   AlarmSlackRemindersFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Architectures: [arm64]
       CodeUri: src/alarm-slack-reminders
       Description: >-
         Scans a set of accounts and regions for long-running CloudWatch alarms,
@@ -307,6 +310,7 @@ Resources:
   AlarmSlackReportFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Architectures: [arm64]
       CodeUri: src/alarm-slack-report
       Description: >-
         Scans a set of accounts and regions for active alarms,
