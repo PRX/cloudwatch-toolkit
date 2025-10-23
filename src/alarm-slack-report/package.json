@@ -1,0 +1,10 @@
+{
+  "name": "alarm-slack-report",
+  "version": "0.0.1",
+  "dependencies": {
+    "@aws-sdk/client-sts": "*",
+    "@aws-sdk/client-cloudwatch": "*",
+    "@aws-sdk/client-eventbridge": "*",
+    "@smithy/util-retry": "*"
+  }
+}

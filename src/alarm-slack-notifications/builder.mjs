@@ -10,7 +10,7 @@ import {
   paginateDescribeAlarmHistory,
 } from "@aws-sdk/client-cloudwatch";
 import { AssumeRoleCommand, STSClient } from "@aws-sdk/client-sts";
-import { ConfiguredRetryStrategy } from "@aws-sdk/util-retry";
+import { ConfiguredRetryStrategy } from "@smithy/util-retry";
 import { detailLines as alarmDetailLines } from "./builder-alarm.mjs";
 import { detailLines as okDetailLines } from "./builder-ok.mjs";
 import regions from "./regions.mjs";

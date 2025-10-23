@@ -11,7 +11,7 @@ import {
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
 import { AssumeRoleCommand, STSClient } from "@aws-sdk/client-sts";
-import { ConfiguredRetryStrategy } from "@aws-sdk/util-retry";
+import { ConfiguredRetryStrategy } from "@smithy/util-retry";
 import regions from "./regions.mjs";
 
 // import { alarmConsole, ssoDeepLink } from "./urls.mjs";

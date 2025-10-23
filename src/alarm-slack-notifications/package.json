@@ -1,0 +1,10 @@
+{
+  "name": "alarm-slack-notifications",
+  "version": "0.0.1",
+  "dependencies": {
+    "@aws-sdk/client-cloudwatch": "*",
+    "@aws-sdk/client-eventbridge": "*",
+    "@aws-sdk/client-sts": "*",
+    "@smithy/util-retry": "*"
+  }
+}

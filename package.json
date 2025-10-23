@@ -23,7 +23,7 @@
     "@aws-sdk/client-eventbridge": "*",
     "@aws-sdk/client-sns": "*",
     "@aws-sdk/client-sts": "*",
-    "@aws-sdk/util-retry": "*"
+    "@smithy/util-retry": "*"
   },
   "devDependencies": {
     "@biomejs/biome": "*",

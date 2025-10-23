@@ -1,0 +1,7 @@
+{
+  "name": "alarm-sms-notifications",
+  "version": "0.0.1",
+  "dependencies": {
+    "@aws-sdk/client-sns": "*"
+  }
+}
