@@ -4,6 +4,9 @@
     "target": "es2022",
     "allowJs": true,
     "checkJs": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["node"],
+    "strictNullChecks": false,
+    "noImplicitAny": false
   }
 }
