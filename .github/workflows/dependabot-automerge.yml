@@ -15,4 +15,4 @@ jobs:
       - name: Enable Pull Request Automerge
         run: gh pr merge --squash --auto ${{ github.event.pull_request.number }}
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN_FOR_GITHUB }}
+          GH_TOKEN: ${{ secrets.GH_AUTOMERGE_PAT }}
