@@ -16,7 +16,7 @@ import { ascii } from "./operators.mjs";
 export function ssoDeepLink(accountId, url) {
   const deepLinkRoleName = "AdministratorAccess";
   const urlEncodedUrl = encodeURIComponent(url);
-  return `https://d-906713e952.awsapps.com/start/#/console?account_id=${accountId}&role_name=${deepLinkRoleName}&destination=${urlEncodedUrl}`;
+  return `https://aws.prx.tech/#/console?account_id=${accountId}&role_name=${deepLinkRoleName}&destination=${urlEncodedUrl}`;
 }
 
 /**
