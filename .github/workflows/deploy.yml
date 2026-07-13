@@ -31,7 +31,7 @@ jobs:
         with:
           use-installer: true
 
-      - uses: aws-actions/configure-aws-credentials@v6.2.1
+      - uses: aws-actions/configure-aws-credentials@6.2.2
         with:
           aws-region: us-east-2
           role-to-assume: arn:aws:iam::578003269847:role/PRX-GHA-AccessRole
