@@ -18,6 +18,7 @@ const TAGGED = [
   "PRX/Augury",
   "PRX/Feeder",
   "PRX/Clickhouse",
+  "PRX/DevOps",
 ];
 
 /**
